@@ -12,17 +12,18 @@ export const processTerrain = async (
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   // In a real implementation, we would send the image and coordinates to a Python backend
-  // For demo purposes, we'll return mock data based on the example image
+  // and use OpenCV to detect the green areas in the image
   
-  // Create a basic polygon around the provided coordinates
-  // In reality, this would be the result of image processing with OpenCV
+  // Create a rectangular polygon (4 sides) with a smaller area
+  // Using a smaller offset to create a polygon more similar to the agricultural field in the image
+  const offset = 0.0005; // Reduced offset by about 4x from previous value
+  
   const polygonCoordinates: Array<[number, number]> = [
-    [coordinates.longitude - 0.002, coordinates.latitude - 0.001],
-    [coordinates.longitude + 0.002, coordinates.latitude - 0.001],
-    [coordinates.longitude + 0.002, coordinates.latitude + 0.001],
-    [coordinates.longitude - 0.001, coordinates.latitude + 0.002],
-    [coordinates.longitude - 0.002, coordinates.latitude + 0.0005],
-    [coordinates.longitude - 0.002, coordinates.latitude - 0.001]
+    [coordinates.longitude - offset, coordinates.latitude - offset], // Bottom left
+    [coordinates.longitude + offset, coordinates.latitude - offset], // Bottom right
+    [coordinates.longitude + offset, coordinates.latitude + offset], // Top right
+    [coordinates.longitude - offset, coordinates.latitude + offset], // Top left
+    [coordinates.longitude - offset, coordinates.latitude - offset]  // Back to first point to close the polygon
   ];
 
   // Create GeoJSON data
@@ -32,7 +33,7 @@ export const processTerrain = async (
       {
         type: "Feature",
         properties: {
-          name: "Detected Terrain Area",
+          name: "Agricultural Field",
           timestamp: new Date().toISOString()
         },
         geometry: {
